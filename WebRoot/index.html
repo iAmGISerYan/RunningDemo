@@ -1,0 +1,185 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+<title>Hello, World</title>  
+<style type="text/css">  
+html{height:100%}  
+body{height:100%;margin:0px;padding:0px}  
+#container{height:100%}  
+#startLushu{position: absolute;top: 50px;right: 300px;z-index: 10;width: 60px;height: 30px}
+#stopLushu{position: absolute;top: 50px;right: 200px;z-index: 10;width: 60px;height: 30px}
+</style>  
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=lCQvjV1FGhVnGOQefw4wowDe"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/library/LuShu/1.2/src/LuShu_min.js"></script>
+<script type="text=javascript" src="E:/projects_fiberhome/厦门马拉松云平台/code/bmap_test/js/addWaterStation.js"></script>
+<script type="text=javascript" src="E:/projects_fiberhome/厦门马拉松云平台/code/bmap_test/js/addSecurity.js"></script>
+</head>  
+ 
+<body>  
+<div id="container"></div> 
+<button id="startLushu" onclick="startLushu()">开始</button> 
+<button id="stopLushu" onclick="stopLushu()">停止</button> 
+<script type="text/javascript"> 
+
+var sourcePath=
+{
+	imgPath:"./images/",
+	jsPath:"./js/"
+} 
+
+var map = new BMap.Map("container");          // 创建地图实例  
+var point = new BMap.Point(114.367597,30.53403);  // 创建点坐标  
+map.centerAndZoom(point, 20);                 // 初始化地图，设置中心点坐标和地图级别  
+map.addControl(new BMap.NavigationControl());    
+map.addControl(new BMap.ScaleControl());    
+map.addControl(new BMap.OverviewMapControl());    
+map.addControl(new BMap.MapTypeControl());    
+map.setCurrentCity("武汉"); // 仅当设置城市信息时，MapTypeControl的切换功能才能可用
+
+
+// 添加安保设施安置点     
+var securitStations=[
+ 	{longtitude:114.367044,latitude:30.53375},
+ 	{longtitude:114.36705,latitude:30.534451},
+ 	{longtitude:114.367872,latitude:30.533373},
+ 	{longtitude:114.368115,latitude:30.534268},
+ 	{longtitude:114.368079,latitude:30.533914}
+ ];  
+ for(var k in securitStations)
+ {
+ 	var securityStation = new BMap.Point(securitStations[k].longtitude,securitStations[k].latitude);    
+ 	addSecurityMarker(map, securityStation, 0);  
+ }
+ 
+  //添加医疗服务站点
+ var medicalCarePoint = new BMap.Point(114.367953,30.534715);    
+ addMedicalStationMarker(map, medicalCarePoint, 0);
+ //添加饮水服务站点
+ var waterStation = new BMap.Point(114.36713,30.534726);    
+ addWaterStationMarker(map, waterStation, 0);
+ //添加洗手间服务点
+ //添加餐饮服务点
+ //添加赛事起点
+ var startPoint = new BMap.Point(114.367158,30.534023);    
+ addStartPointMarker(map, startPoint, 0);
+ //添加赛事跑道
+ var routeLine = new BMap.Polyline([    
+   new BMap.Point(114.367158,30.534023),    
+   new BMap.Point(114.367198,30.533541),
+   new BMap.Point(114.36723,30.533447),
+   new BMap.Point(114.367275,30.533408),
+   new BMap.Point(114.367338,30.533358),
+   new BMap.Point(114.367414,30.533327),
+   new BMap.Point(114.367522,30.53328),
+   new BMap.Point(114.367693,30.533284),
+   new BMap.Point(114.367922,30.533393),
+   new BMap.Point(114.367966,30.533451),
+   new BMap.Point(114.367993,30.533498),
+   new BMap.Point(114.368016,30.533548),
+   new BMap.Point(114.368007,30.534501),
+   new BMap.Point(114.367935,30.534622),
+   new BMap.Point(114.367863,30.534688),
+   new BMap.Point(114.367836,30.534707),
+   new BMap.Point(114.36767,30.534765),
+   new BMap.Point(114.367472,30.53475),
+   new BMap.Point(114.367356,30.534699),
+   new BMap.Point(114.367284,30.534653),
+   new BMap.Point(114.367248,30.53461),
+   new BMap.Point(114.367248,30.53461),
+   new BMap.Point(114.36718,30.534427),
+   new BMap.Point(114.367158,30.534023)
+ ],    
+ {strokeColor:"blue", strokeWeight:6, strokeOpacity:0.5}    
+);    
+map.addOverlay(routeLine); 
+
+//创建路书
+lushu = new BMapLib.LuShu(map,routeLine.getPath(),{
+	        defaultContent:"",
+	        autoView:true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
+	        icon  : new BMap.Icon(sourcePath.imgPath+"running_man.png", new BMap.Size(52,26),{anchor : new BMap.Size(20, 30)}),
+	        speed: 40,
+	        enableRotation:true,//是否设置marker随着道路的走向进行旋转
+	        landmarkPois: [
+	           /*{lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+	           {lng:116.315391,lat:39.964429,html:'高速公路收费<div><img src="http://map.baidu.com/img/logo-map.gif"/></div>',pauseTime:3},
+	           {lng:116.381476,lat:39.974073,html:'肯德基早餐<div><img src="http://ishouji.baidu.com/resource/images/map/show_pic04.gif"/></div>',pauseTime:2}*/
+]});  
+
+function addSecurityMarker(map, point, index){  // 创建图标对象   
+	var myIcon = new BMap.Icon(sourcePath.imgPath+"security.png", new BMap.Size(32, 32), {    
+	// 指定定位位置。   
+	// 当标注显示在地图上时，其所指向的地理位置距离图标左上    
+	// 角各偏移10像素和25像素。您可以看到在本例中该位置即是   
+	   // 图标中央下端的尖角位置。    
+	   offset: new BMap.Size(10, 25),    
+	   // 设置图片偏移。   
+	   // 当您需要从一幅较大的图片中截取某部分作为标注图标时，您   
+	   // 需要指定大图的偏移位置，此做法与css sprites技术类似。    
+	   imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移    
+	 });      
+// 创建标注对象并添加到地图   
+ 	var marker = new BMap.Marker(point, {icon: myIcon});    
+ 	map.addOverlay(marker);    
+} 
+function addWaterStationMarker(map, point, index){  // 创建图标对象   
+	var myIcon = new BMap.Icon(sourcePath.imgPath+"water.png", new BMap.Size(32, 32), {    
+	// 指定定位位置。   
+	// 当标注显示在地图上时，其所指向的地理位置距离图标左上    
+	// 角各偏移10像素和25像素。您可以看到在本例中该位置即是   
+	   // 图标中央下端的尖角位置。    
+	   offset: new BMap.Size(10, 25),    
+	   // 设置图片偏移。   
+	   // 当您需要从一幅较大的图片中截取某部分作为标注图标时，您   
+	   // 需要指定大图的偏移位置，此做法与css sprites技术类似。    
+	   imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移    
+	 });      
+// 创建标注对象并添加到地图   
+ 	var marker = new BMap.Marker(point, {icon: myIcon});    
+ 	map.addOverlay(marker);    
+} 
+function addMedicalStationMarker(map, point, index){  // 创建图标对象   
+	var myIcon = new BMap.Icon(sourcePath.imgPath+"medical_care.png", new BMap.Size(32, 32), {    
+	// 指定定位位置。   
+	// 当标注显示在地图上时，其所指向的地理位置距离图标左上    
+	// 角各偏移10像素和25像素。您可以看到在本例中该位置即是   
+	   // 图标中央下端的尖角位置。    
+	   offset: new BMap.Size(10, 25),    
+	   // 设置图片偏移。   
+	   // 当您需要从一幅较大的图片中截取某部分作为标注图标时，您   
+	   // 需要指定大图的偏移位置，此做法与css sprites技术类似。    
+	   imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移    
+	 });      
+// 创建标注对象并添加到地图   
+ 	var marker = new BMap.Marker(point, {icon: myIcon});    
+ 	map.addOverlay(marker);    
+} 
+function addStartPointMarker(map, point, index){  // 创建图标对象   
+	var myIcon = new BMap.Icon(sourcePath.imgPath+"start_point.png", new BMap.Size(32, 32), {    
+	// 指定定位位置。   
+	// 当标注显示在地图上时，其所指向的地理位置距离图标左上    
+	// 角各偏移10像素和25像素。您可以看到在本例中该位置即是   
+	   // 图标中央下端的尖角位置。    
+	   offset: new BMap.Size(10, 25),    
+	   // 设置图片偏移。   
+	   // 当您需要从一幅较大的图片中截取某部分作为标注图标时，您   
+	   // 需要指定大图的偏移位置，此做法与css sprites技术类似。    
+	   imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移    
+	 });      
+// 创建标注对象并添加到地图   
+ 	var marker = new BMap.Marker(point, {icon: myIcon});    
+ 	map.addOverlay(marker);    
+} 
+function startLushu()
+{
+	lushu.start();
+}
+function stopLushu()
+{
+	lushu.stop();
+}
+</script>  
+</body>  
+</html>
